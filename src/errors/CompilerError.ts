@@ -64,7 +64,7 @@ export enum CompilerErrorType {
 	NullableIndexOnMapOrSet,
 	BadSpreadType,
 	YieldNotInExpressionStatement,
-	NonStringThrow,
+	EmptyThrow,
 	BadSwitchDefaultPosition,
 	BadEnum,
 	BadLuaTupleStatement,
@@ -94,7 +94,6 @@ export enum CompilerErrorType {
 	MixedMethodSet,
 	BadNamespaceExport,
 	NoEnumMerging,
-	NoTryStatement,
 	TS37,
 }
 

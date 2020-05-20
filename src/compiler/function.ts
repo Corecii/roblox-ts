@@ -7,6 +7,7 @@ import {
 	compileExpression,
 	compileStatement,
 	getParameterData,
+	shouldForkForTryCatchFinally,
 } from ".";
 import { CompilerState } from "../CompilerState";
 import { CompilerError, CompilerErrorType } from "../errors/CompilerError";
@@ -32,26 +33,34 @@ export const nodeHasParameters = (ancestor: ts.Node): ancestor is HasParameters 
 function getReturnStrFromExpression(state: CompilerState, exp: ts.Expression, func?: HasParameters) {
 	exp = skipNodesDownwards(exp);
 
+	let expStr: string | undefined;
+
 	if (func && isTupleType(func.getReturnType())) {
 		if (ts.TypeGuards.isArrayLiteralExpression(exp)) {
-			let expStr = compileExpression(state, exp);
+			expStr = compileExpression(state, exp);
 			expStr = expStr.substr(2, expStr.length - 4);
-			return `return ${expStr};`;
 		} else if (ts.TypeGuards.isCallExpression(exp) && isTupleType(exp.getReturnType())) {
-			const expStr = compileCallExpression(state, exp, true);
-			return `return ${expStr};`;
+			expStr = compileCallExpression(state, exp, true);
 		} else {
-			const expStr = compileExpression(state, exp);
-			return `return unpack(${expStr});`;
+			expStr = compileExpression(state, exp);
+			expStr = `unpack(${expStr})`;
 		}
 	}
-	{
+	if (!expStr) {
 		state.declarationContext.set(exp, {
 			isIdentifier: false,
 			set: "return",
 		});
-		const expStr = compileExpression(state, exp);
-		return state.declarationContext.delete(exp) && `return ${expStr};`;
+		expStr = compileExpression(state, exp);
+		if (!state.declarationContext.delete(exp)) {
+			return false;
+		}
+	}
+
+	if (shouldForkForTryCatchFinally(exp, false)) {
+		return `return table.pack("return", ${expStr});`;
+	} else {
+		return `return ${expStr};`;
 	}
 }
 
@@ -63,6 +72,9 @@ export function compileReturnStatement(state: CompilerState, node: ts.ReturnStat
 		const returnStr = getReturnStrFromExpression(state, exp, funcNode);
 		return state.exitPrecedingStatementContextAndJoin() + (returnStr ? state.indent + returnStr + "\n" : "");
 	} else {
+		if (shouldForkForTryCatchFinally(node, false)) {
+			return state.indent + `return {"return", n = 1};\n`;
+		}
 		return state.indent + `return nil;\n`;
 	}
 }

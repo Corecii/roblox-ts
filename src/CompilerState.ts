@@ -215,6 +215,20 @@ export class CompilerState {
 		return this.getNameForContext(node.getFirstAncestorByKind(ts.SyntaxKind.ModuleDeclaration));
 	}
 
+	public tryTracebackId = new Array<string>();
+
+	public pushTryTracebackId(tracebackId: string) {
+		this.tryTracebackId.push(tracebackId);
+	}
+
+	public popTryTracebackId() {
+		this.tryTracebackId.pop();
+	}
+
+	public getTryTracebackId() {
+		return this.tryTracebackId.length > 0 ? this.tryTracebackId[this.tryTracebackId.length - 1] : undefined;
+	}
+
 	// in the form: { ORIGINAL_IDENTIFIER = REPLACEMENT_VALUE }
 	// For example, this is used for  exported/namespace values
 	// which should be represented differently in Lua than they

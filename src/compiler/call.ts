@@ -904,6 +904,15 @@ export function compileCallExpression(
 			}
 		}
 
+		if (exp.getText() == "catchTraceback") {
+			assertUnquestionable(node);
+			const tracebackId = state.getTryTracebackId();
+			const compiledStr = tracebackId ? `${tracebackId}` : `nil`;
+			const str = appendDeclarationIfMissing(state, getLeftHandSideParent(node, 1), `(${compiledStr})`);
+
+			return str;
+		}
+
 		const isSubstitutableMethod = GLOBAL_REPLACE_METHODS.get(exp.getText());
 
 		if (isSubstitutableMethod) {

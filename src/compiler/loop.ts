@@ -2,7 +2,7 @@ import * as ts from "ts-morph";
 import { compileStatement } from ".";
 import { CompilerState } from "../CompilerState";
 
-function hasContinueDescendant(node: ts.Node) {
+export function hasContinueDescendant(node: ts.Node) {
 	for (const child of node.getChildren()) {
 		if (ts.TypeGuards.isContinueStatement(child)) {
 			return true;
@@ -23,6 +23,37 @@ function hasContinueDescendant(node: ts.Node) {
 	}
 	return false;
 }
+
+export function hasBreakDescendant(node: ts.Node) {
+	for (const child of node.getChildren()) {
+		if (ts.TypeGuards.isBreakStatement(child)) {
+			return true;
+		}
+		if (
+			!(
+				ts.TypeGuards.isForInStatement(child) ||
+				ts.TypeGuards.isForOfStatement(child) ||
+				ts.TypeGuards.isForStatement(child) ||
+				ts.TypeGuards.isWhileStatement(child) ||
+				ts.TypeGuards.isDoStatement(child)
+			)
+		) {
+			if (hasBreakDescendant(child)) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+export type IsLoop = ts.ForInStatement | ts.ForOfStatement | ts.ForStatement | ts.WhileStatement | ts.DoStatement;
+
+export const nodeIsLoop = (node: ts.Node): node is IsLoop =>
+	ts.TypeGuards.isForInStatement(node) ||
+	ts.TypeGuards.isForOfStatement(node) ||
+	ts.TypeGuards.isForStatement(node) ||
+	ts.TypeGuards.isWhileStatement(node) ||
+	ts.TypeGuards.isDoStatement(node);
 
 export function compileLoopBody(state: CompilerState, node: ts.Statement) {
 	const hasContinue = hasContinueDescendant(node);

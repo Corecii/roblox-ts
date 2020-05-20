@@ -330,6 +330,10 @@ const errorMatrix: ErrorMatrix = {
 		message: "should force destructuring on gmatch",
 		type: CompilerErrorType.BadForOfInitializer,
 	},
+	"invalidNames/catch.spec.ts": {
+		message: "should not allow invalid identifiers to be used (catch.spec.ts)",
+		type: CompilerErrorType.InvalidIdentifier,
+	},
 	"invalidNames/variableDeclaration.spec.ts": {
 		message: "should not allow invalid identifiers to be used (variableDeclaration.spec.ts)",
 		type: CompilerErrorType.InvalidIdentifier,
@@ -393,10 +397,6 @@ const errorMatrix: ErrorMatrix = {
 	"noEnumMerging.spec.ts": {
 		message: "should not allow enum merging",
 		type: CompilerErrorType.NoEnumMerging,
-	},
-	"try.spec.ts": {
-		message: "should not allow try statements",
-		type: CompilerErrorType.NoTryStatement,
 	},
 	"invalidAccess.spec.ts": {
 		message: "should not allow access to reserved TS globals",

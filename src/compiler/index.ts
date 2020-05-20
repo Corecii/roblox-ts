@@ -33,6 +33,7 @@ export * from "./switch";
 export * from "./template";
 export * from "./throw";
 export * from "./truthiness";
+export * from "./try";
 export * from "./unary";
 export * from "./variable";
 export * from "./while";
